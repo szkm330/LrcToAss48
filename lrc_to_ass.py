@@ -100,6 +100,7 @@ for line in lrc:
 
     # 获取弹幕内容
     comment =  line.split(']',2)[1].strip()
+    comment = re.sub(r'.*\s(说|留言)：', "", comment)
     # 若内容为空
     if len(comment)<1 :
         continue
@@ -110,6 +111,11 @@ for line in lrc:
     # time[0] = int(time[0])
     # time[1] = int(time[1])
     time[2] = (time[2])+8
+
+    # 为付费留言延长在弹幕中显示的时间
+    if " 留言：" in line :
+        time[2] = (time[2])+6    
+
     if time[2] < 10:
         time[2] = '0' + str(time[2])
     elif time[2] >= 60:
