@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 # @Author: szkm330
 # @Date:   2021-02-18 16:25:32
+import sys
+import re
+import os
+import random
+from pathlib import Path
 
 '''
 1.运行lrc_to_ass.py
@@ -9,9 +14,10 @@
 3.aegisub另存一次ass
 '''
 
+
 # 设置弹幕区
-right = '852'
-left = '270'
+right = 852
+left = -25
 
 # 弹幕高度池
 high = [65,95,125,155,185,215,245,275,305,335]
@@ -38,27 +44,72 @@ Style: TALK,霞鹜文楷,35,&H00FFFFFF,&H000000FF,&H004B164D,&H00000000,-1,0,0,0
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-ass = open("output.ass","w",encoding = "utf-8")
+
+input_file_name = "input.lrc"
+output_file_name = "output.ass"
+
+
+if len(sys.argv)>1 :
+    file_name = sys.argv[1]
+    file_item = Path(file_name)
+    if file_item.exists() and file_item.is_file() :
+        input_file_name = sys.argv[1]
+        output_file_name = re.sub(r'\..{1,4}$', ".ass", input_file_name)
+
+file_item = Path(input_file_name)
+if not(file_item.exists() or file_item.is_file()) :
+    sys.exit(-2)
+
+if input_file_name==output_file_name :
+    output_file_name = input_file_name + ".ass"
+
+print('{}{}'.format("input: ",input_file_name))
+print('{}{}'.format("output: ",output_file_name))
+
+ass = open(output_file_name,"w",encoding = "utf-8")
 ass.write(info)
 ass.close()
 
-
 # lrc转换ass
-lrc = open("input.lrc","r",encoding = "utf-8")
-ass = open("output.ass","a",encoding = "utf-8")
+lrc = open(input_file_name,"r",encoding = "utf-8")
+ass = open(output_file_name,"a",encoding = "utf-8")
+
+counter_r=0
+counter_w=0
 
 for line in lrc:
+    line = line.strip()
+    print('{}{}'.format("R ",line))
+    counter_r=counter_r+1
 
-    time = line.split(']')[0][1:]
-    time = time.split(':')
-    time[0] = str(int(time[0]))
-    time[2] = time[2][:-1]
+    if not( re.match("^\[[0-9:\.\s]+\].+",line)) :
+        continue
+
+    time_str = line.split(']')[0][1:]
+    time_str = time_str.split(':')
+    time = [0,0,0]
+    if len(time_str)>2 :
+        time[0] = int(time_str[0])
+        time[1] = int(time_str[1])       
+        time[2] = float(time_str[2])
+    elif len(time_str)==2 :
+        time[1] = int(time_str[0])
+        time[2] = float(time_str[1]) 
+    else :
+        continue
+
+    # 获取弹幕内容
+    comment =  line.split(']',2)[1].strip()
+    # 若内容为空
+    if len(comment)<1 :
+        continue
+
     # 获取起始时间
     time0 = '{}:{}:{}'.format(time[0],time[1],time[2])
     # 时间进位计算
-    time[0] = int(time[0])
-    time[1] = int(time[1])
-    time[2] = float(time[2])+5
+    # time[0] = int(time[0])
+    # time[1] = int(time[1])
+    time[2] = (time[2])+8
     if time[2] < 10:
         time[2] = '0' + str(time[2])
     elif time[2] >= 60:
@@ -79,23 +130,20 @@ for line in lrc:
             time[1] = str(time[1])
     # 获取结束时间
     time1 = '{}:{}:{}'.format(time[0],time[1],time[2])
-    # 获取弹幕内容
-    comment = line.split(']')[1].split()
-    # 若内容里有空格
-    if isinstance(comment,list):
-        comment = line.split(']')[1].split()[1:]
-        comment = ' '.join(comment)
+
     # 按顺序轮流设置高度
     pos = high[n]
-    n = n + 1
+    n = n + random.randint(1,4)
     if n >= 10:
-        n = 0
+        n = n-10
 
     # 得到最终语句
-    end = 'Dialogue: 0,{},{},Default,,0,0,0,,{{\move({},{},{},{})}}{}'.format(
-           time0,time1,right,pos,left,pos,comment)
+    end = 'Dialogue: 0,{},{},Default,,0,0,0,,{{\move({},{},{},{})}}{}'.format(time0,time1,right,pos,left*len(comment),pos,comment)
     ass.write('{}\n'.format(end))
-
+    print('{}{}'.format("W: ",end))
+    counter_w=counter_w+1
 # 结束
 lrc.close()
 ass.close()
+
+print('\nFinish. W/R={}/{}'.format(counter_w,counter_r))
