@@ -11,13 +11,23 @@ import re
 3.aegisub另存一次ass
 '''
 
+def filter_emoji(desstr,restr=''):
+    #过滤表情
+    try:
+        co = re.compile(u'[\U00010000-\U0010ffff]')
+    except re.error:
+        co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
+    return co.sub(restr, desstr)
+
 # 设置弹幕区，根据直播画面分辨率进行设置
-right = '852'
-left = '320'
+right = '1280'
+left = '405'
 # 弹幕停留时间
-dtime = 5
+dtime = 8
 # 弹幕高度池，此为30字号的默认设置
-high = [65,95,125,155,185,215,245,275,305,335]
+#high = [65,95,125,155,185,215,245,275,305,335]
+# 弹幕高度池，此为45字号的默认设置
+high = [65, 110, 155, 200, 245, 290, 335, 380, 425, 470]
 n = 0
 
 input_file_name = "input.lrc"
@@ -33,13 +43,13 @@ ScriptType: v4.00+
 WrapStyle: 0
 ScaledBorderAndShadow: yes
 YCbCr Matrix: TV.601
-PlayResX: 852
-PlayResY: 480
+PlayResX: 1280
+PlayResY: 720
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,霞鹜文楷,30,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,1,10,10,10,1
-Style: TALK,霞鹜文楷,35,&H00FFFFFF,&H000000FF,&H004B164D,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,10,10,10,1
+Style: Default,霞鹜文楷,45,&H00FFFFFF,&H000000FF,&H00000000,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,1,10,10,10,1
+Style: TALK,霞鹜文楷,50,&H00FFFFFF,&H000000FF,&H004B164D,&H00000000,-1,0,0,0,100,100,0,0,1,2,0,2,10,10,10,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -114,10 +124,11 @@ for line in lrc:
         n = 0
 
     # 得到最终语句,为了不挡画面,直接在画面边缘消失
-    end = 'Dialogue: 0,{},{},Default,,0,0,0,,{{\move({},{},{},{})}}{}'.format(
+    end1 = 'Dialogue: 0,{},{},Default,,0,0,0,,{{\move({},{},{},{})}}{}'.format(
            time0,time1,right,pos,left,pos,comment)
     #format(time0,time1,right,pos,left*len(comment),pos,comment)
-    ass.write('{}\n'.format(end))
+    end2 = filter_emoji(end1)
+    ass.write('{}\n'.format(end2))
 
 # 结束
 lrc.close()
