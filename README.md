@@ -8,11 +8,11 @@
 
 
 
-压制乱码的解决方法：
+~~压制乱码的解决方法：~~
 
-1.记事本另存output.ass为ANSI编码
+~~1.记事本另存output.ass为ANSI编码~~
 
-2.再用Aegisub另存一次ass
+~~2.再用Aegisub另存一次ass~~
 
-
+直接把emoji都过滤掉了。
 
