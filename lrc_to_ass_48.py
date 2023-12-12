@@ -35,10 +35,10 @@ def filter_emoji(desstr,restr=''):
     return co.sub(restr, desstr)
 
 # 设置弹幕区，根据直播画面分辨率进行设置
-right = '1280'
-left = '405'
+right = '1280'  
+left = '405' #405, -1345
 # 弹幕停留时间
-dtime = 8
+dtime = 8 #8, 21
 # 弹幕高度池，此为30字号的默认设置
 #high = [65,95,125,155,185,215,245,275,305,335]
 # 弹幕高度池，此为45字号的默认设置
