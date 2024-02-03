@@ -142,8 +142,8 @@ for line in lrc:
     end1 = 'Dialogue: 0,{},{},Default,,0,0,0,,{{\move({},{},{},{})}}{}'.format(
            time0,time1,right,pos,left,pos,comment)
     #format(time0,time1,right,pos,left*len(comment),pos,comment)
-    end2 = filter_emoji(end1)
-    ass.write('{}\n'.format(end2))
+    #end2 = filter_emoji(end1)
+    ass.write('{}\n'.format(end1))
 
 # 结束
 lrc.close()
